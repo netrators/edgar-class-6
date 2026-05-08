@@ -330,7 +330,8 @@
             Pause: ({ size=24, className="" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>,
             Star: ({ size=24, className="" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>,
             MessageSquare: ({ size=24, className="" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>,
-            RefreshCw: ({ size=24, className="" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            RefreshCw: ({ size=24, className="" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>,
+            User: ({ size=24, className="" }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
         };
 
         // =====================================================================
@@ -650,66 +651,49 @@
         const InteractiveRoleplay = ({ hostName, contestantName, script }) => {
             const [inputs, setInputs] = useState({});
             const [showHints, setShowHints] = useState(false);
-            const [activeTurn, setActiveTurn] = useState(0);
             const chatRef = useRef(null);
-
-            // Auto-scroll to bottom as chat progresses
-            useEffect(() => {
-                if(chatRef.current) {
-                    chatRef.current.scrollTop = chatRef.current.scrollHeight;
-                }
-            }, [activeTurn, inputs, showHints]);
 
             const handleInputChange = (id, value, correctHint) => {
                 setInputs(prev => ({ ...prev, [id]: value }));
             };
 
-            const advanceTurn = () => {
-                if (activeTurn < script.length - 1) {
-                    audioEngine.playTone('tick');
-                    setActiveTurn(p => p + 1);
-                } else {
-                    audioEngine.playTone('fanfare');
-                }
-            };
-
             return (
-                <div className="w-full max-w-5xl mx-auto flex flex-col gap-6 shrink-0 relative h-[700px] bg-gray-50/50 rounded-[3rem] border border-gray-200 shadow-inner overflow-hidden">
+                <div className="w-full max-w-5xl mx-auto flex flex-col shrink-0 h-[750px] bg-gray-50/50 rounded-[3rem] border border-gray-200 shadow-inner overflow-hidden">
                     
-                    {/* Roleplay Header */}
-                    <div className="absolute top-0 left-0 w-full glass-header p-5 px-8 flex justify-between items-center z-20">
+                    {/* Roleplay Header (Fix: Ya no es absolute, no tapará el texto) */}
+                    <div className="w-full glass-header p-5 px-8 flex justify-between items-center z-20 shrink-0 border-b border-gray-200">
                         <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100">
-                                <div className="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></div>
-                                <span className="font-bold text-sm text-gray-800">LIVE INTERVIEW</span>
+                            <div className="flex items-center gap-2 bg-white px-5 py-2 rounded-full shadow-sm border border-gray-100">
+                                <span className="font-bold text-sm text-navy-900 tracking-widest uppercase">Full Interview Transcript</span>
                             </div>
                         </div>
                         <div className="flex gap-3">
-                            <Button onClick={() => setShowHints(!showHints)} variant="secondary" className="py-2 px-4 text-xs">
-                                {showHints ? "Hide Hints" : "Show Hints"}
+                            <Button onClick={() => setShowHints(!showHints)} variant="secondary" className="py-2 px-6 text-sm font-bold bg-gold-100 text-gold-800 hover:bg-gold-200">
+                                {showHints ? "🙈 Hide Hints" : "💡 Show Hints"}
                             </Button>
                         </div>
                     </div>
 
-                    {/* Chat Area */}
-                    <div ref={chatRef} className="flex-1 overflow-y-auto p-6 md:p-10 pt-28 pb-32 flex flex-col gap-8 scroll-smooth">
-                        {script.slice(0, activeTurn + 1).map((turn, index) => {
+                    {/* Chat Area (Muestra todo de una vez) */}
+                    <div ref={chatRef} className="flex-1 overflow-y-auto p-6 md:p-10 pb-20 flex flex-col gap-10 scroll-smooth">
+                        <p className="text-center text-gray-400 font-bold uppercase tracking-widest text-xs mb-4">--- INICIO DE LA ENTREVISTA ---</p>
+                        
+                        {script.map((turn, index) => {
                             const isHost = turn.role === 'host';
-                            const isLatest = index === activeTurn;
                             
                             return (
-                                <div key={index} className={`flex w-full ${isHost ? 'justify-start' : 'justify-end'} ${isLatest ? 'animate-fade-in-up' : ''}`}>
-                                    <div className={`max-w-[95%] md:max-w-[85%] rounded-[2.5rem] p-8 shadow-md border ${isHost ? 'bg-white border-gray-200 rounded-tl-none' : 'bg-navy-900 border-navy-800 text-white rounded-tr-none'}`}>
+                                <div key={index} className={`flex w-full ${isHost ? 'justify-start' : 'justify-end'}`}>
+                                    <div className={`max-w-[95%] md:max-w-[85%] rounded-[2.5rem] p-8 shadow-lg border ${isHost ? 'bg-white border-gray-200 rounded-tl-none' : 'bg-navy-900 border-navy-800 text-white rounded-tr-none'}`}>
                                         
-                                        <div className="flex items-center gap-3 mb-4 border-b pb-3 border-opacity-20 border-current">
-                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isHost ? 'bg-gray-100 text-gray-600' : 'bg-gold-500 text-navy-900'}`}>
-                                                {isHost ? <Icons.User size={16}/> : <Icons.Star size={16}/>}
+                                        <div className="flex items-center gap-3 mb-5 border-b pb-4 border-opacity-20 border-current">
+                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isHost ? 'bg-gray-100 text-gray-600' : 'bg-gold-500 text-navy-900'}`}>
+                                                {isHost ? <Icons.User size={20}/> : <Icons.Star size={20}/>}
                                             </div>
-                                            <p className={`font-bold text-sm uppercase tracking-widest ${isHost ? 'text-gray-500' : 'text-gold-400'}`}>
+                                            <p className={`font-extrabold text-sm uppercase tracking-widest ${isHost ? 'text-gray-500' : 'text-gold-400'}`}>
                                                 {isHost ? hostName : contestantName}
                                             </p>
-                                            {isHost && isLatest && turn.audioText && (
-                                                <TTSButton text={turn.audioText} className="ml-auto scale-75 bg-gray-100 border-none" />
+                                            {isHost && turn.audioText && (
+                                                <TTSButton text={turn.audioText} className="ml-auto scale-75 bg-gray-100 border-none hover:bg-gray-200" />
                                             )}
                                         </div>
                                         
@@ -728,16 +712,16 @@
                                                             type="text" 
                                                             value={val} 
                                                             onChange={(e) => handleInputChange(part.id, e.target.value, part.hint)}
-                                                            className={`glass-input outline-none text-center transition-all min-w-[200px] font-bold rounded-xl px-4 py-2 text-xl md:text-2xl
+                                                            className={`glass-input outline-none text-center transition-all min-w-[220px] font-bold rounded-xl px-4 py-2 text-xl md:text-2xl shadow-inner
                                                                 ${isHost ? 'text-gray-900 border-gray-400 focus:border-gray-800 bg-gray-100' : 'text-white border-gold-500/50 focus:border-gold-400 bg-white/10 placeholder-white/30'}
                                                                 ${isFilled ? (isHost ? 'border-emerald-500 bg-emerald-50' : 'border-emerald-400 bg-emerald-400/20 text-emerald-300') : ''}
                                                             `}
-                                                            placeholder="Type here..."
-                                                            style={{ width: `${Math.max(200, val.length * 15 + 40)}px` }}
+                                                            placeholder="Type chunk..."
+                                                            style={{ width: `${Math.max(220, val.length * 15 + 40)}px` }}
                                                         />
                                                         {showHints && (
-                                                            <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-sm font-bold bg-white text-navy-900 border-2 border-gold-400 px-4 py-1.5 rounded-xl shadow-xl whitespace-nowrap z-10 animate-bounce">
-                                                                💡 Hint: {part.hint}
+                                                            <span className="absolute -bottom-12 left-1/2 -translate-x-1/2 text-sm font-bold bg-white text-navy-900 border-2 border-gold-400 px-4 py-2 rounded-xl shadow-xl whitespace-nowrap z-10">
+                                                                💡 {part.hint}
                                                                 <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-t-2 border-l-2 border-gold-400 rotate-45"></div>
                                                             </span>
                                                         )}
@@ -747,27 +731,31 @@
                                         </div>
 
                                         {/* Spanish Translation */}
-                                        <div className={`text-base italic pt-4 border-t border-opacity-20 border-current ${isHost ? 'text-gray-500' : 'text-gray-300'}`}>
+                                        <div className={`text-base italic pt-4 border-t border-opacity-20 border-current ${isHost ? 'text-gray-500' : 'text-gray-400'}`}>
                                             {turn.es}
                                         </div>
                                     </div>
                                 </div>
                             );
                         })}
+                        <p className="text-center text-emerald-600 font-bold uppercase tracking-widest text-sm mt-8 bg-emerald-100 py-3 rounded-2xl mx-auto w-full max-w-sm">--- FIN DE LA ENTREVISTA ---</p>
                     </div>
+                </div>
+            );
+        };
 
-                    {/* Bottom Controls */}
-                    <div className="absolute bottom-0 left-0 w-full glass-header p-6 flex justify-center z-20">
-                        {activeTurn < script.length - 1 ? (
-                            <Button onClick={advanceTurn} className="w-full max-w-md bg-navy-900 shadow-xl text-lg py-4 rounded-2xl">
-                                Continue to next line <Icons.ChevronRight/>
-                            </Button>
-                        ) : (
-                            <div className="bg-emerald-100 border border-emerald-300 text-emerald-800 px-8 py-4 rounded-2xl font-bold flex items-center gap-3 text-lg shadow-sm">
-                                <Icons.CheckCircle size={28}/> Interview Completed
-                            </div>
-                        )}
-                    </div>
+        const Confetti = () => {
+            const [particles, setParticles] = useState([]);
+            useEffect(() => {
+                const colors = ['#C5A880', '#0A192F', '#ffffff', '#10b981', '#e11d48'];
+                setParticles(Array.from({ length: 150 }).map((_, i) => ({ id: i, x: Math.random() * 100, y: -20 - Math.random() * 50, size: 6 + Math.random() * 12, color: colors[Math.floor(Math.random() * colors.length)], duration: 3 + Math.random() * 5, delay: Math.random() * 2 })));
+            }, []);
+            return (
+                <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+                    {particles.map(p => (
+                        <div key={p.id} className="absolute rounded-sm opacity-90 shadow-sm" style={{ left: `${p.x}vw`, top: `${p.y}vh`, width: `${p.size}px`, height: `${p.size}px`, backgroundColor: p.color, animation: `fall ${p.duration}s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${p.delay}s forwards` }} />
+                    ))}
+                    <style>{`@keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(120vh) rotate(1080deg); opacity: 0; } }`}</style>
                 </div>
             );
         };
